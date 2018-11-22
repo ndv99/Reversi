@@ -3,11 +3,14 @@ import java.io.*;
 
 public class Menu {
 
+    Game game;
+
     public static void main(String[] args){
-        Menu.processChoices();
+        Menu menu = new Menu();
+        menu.processChoices();
     }
 
-    private static void displayMenu(){
+    private void displayMenu(){
         readFile("src/logo.txt", "Reversi");
         System.out.println();
         System.out.println("Menu");
@@ -19,7 +22,7 @@ public class Menu {
     }
 
 
-    private static void readFile(String source, String errorMsg){
+    private void readFile(String source, String errorMsg){
         try{
             FileReader fileReader = new FileReader(source);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -38,7 +41,7 @@ public class Menu {
         }
     }
 
-    private static void processChoices(){
+    private void processChoices(){
         boolean finished = false; // set to true when the user wants to exit to break the loop
         Scanner menuScanner = new Scanner(System.in);
         while (!finished) { // keeps going while the user hasn't chosen to exit
@@ -50,12 +53,11 @@ public class Menu {
                     String p1Name = menuScanner.nextLine();
                     System.out.println("Player 2, enter your name:");
                     String p2Name = menuScanner.nextLine();
-                    Game game = new Game(p1Name, p2Name);
+                    game = new Game(p1Name, p2Name);
                     game.playGame();
                     break;
                 case "2": // User chooses option 2
-                    game = new Game("", "");
-                    game.loadGame();
+                    loadGame();
                     break;
                 case "3": // User chooses option 3
                     readFile("src/rules.txt", "Error reading rules.");
@@ -68,6 +70,27 @@ public class Menu {
                     System.out.println("That input was invalid, please try again.");
                     break;
             }
+        }
+    }
+
+    private void loadGame(){
+        Scanner loadScanner = new Scanner(System.in);
+        System.out.println("Enter the save name:");
+        String saveName = loadScanner.nextLine();
+
+        try{
+            FileInputStream inputStream = new FileInputStream(new File(saveName));
+            ObjectInputStream objectInput = new ObjectInputStream(inputStream);
+
+            game = (Game) objectInput.readObject();
+            game.playGame();
+
+            inputStream.close();
+            objectInput.close();
+        } catch (IOException e){
+            System.out.println("Error (IOException). Please try again.");
+        } catch (ClassNotFoundException e){
+            System.out.println("Error (ClassNotFoundException). Please try again.");
         }
     }
 }
