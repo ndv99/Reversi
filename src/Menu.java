@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.io.*;
 
 public class Menu {
 
@@ -18,6 +19,23 @@ public class Menu {
     }
 
     private static void displayReversiLogo(){
+        try{
+            FileReader fileReader = new FileReader("src/logo.txt");
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            String nextFileLine = bufferedReader.readLine();
+
+            // prints every line in file to console
+            while (nextFileLine != null) {
+                System.out.println(nextFileLine);
+                nextFileLine = bufferedReader.readLine();
+            }
+
+            bufferedReader.close();
+        } catch (IOException e){
+            System.out.println("Reversi");
+        }
+
     }
 
     private static void processChoices(){
