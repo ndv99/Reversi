@@ -8,9 +8,9 @@ public class Menu {
 
     private static void displayMenu(){
         displayReversiLogo();
-        System.out.println("");
+        System.out.println();
         System.out.println("Menu");
-        System.out.println("");
+        System.out.println();
         System.out.println("1. New game");
         System.out.println("2. Load game");
         System.out.println("3. Rules of Reversi");
@@ -36,10 +36,11 @@ public class Menu {
                     game.playGame();
                     break;
                 case "2": // User chooses option 2
-
+                    game = new Game("", "");
+                    game.loadGame();
                     break;
                 case "3": // User chooses option 3
-
+                    displayRules();
                     break;
                 case "0": // User chooses to exit
 
@@ -50,5 +51,9 @@ public class Menu {
                     break;
             }
         }
+    }
+
+    private static void displayRules(){
+
     }
 }

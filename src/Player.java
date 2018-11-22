@@ -1,4 +1,4 @@
-public class Player {
+class Player {
 
     private String name;
     private int score;
@@ -15,11 +15,11 @@ public class Player {
         this.name = name;
     }
 
-    public int getScore() {
+    int getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    void setScore(int score) {
         this.score = score;
     }
 }
