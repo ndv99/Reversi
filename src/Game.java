@@ -49,26 +49,21 @@ class Game {
                             String playerColumnChoice = gameScanner.nextLine().toUpperCase();
                             System.out.println("Please enter the row you want: ");
                             String playerRowChoice = gameScanner.nextLine();
-                            validMove = validateMove(new String[]{playerColumnChoice, playerRowChoice});
+                            validMove = validateMove(new String[]{playerColumnChoice, playerRowChoice}, validMoves);
                             if (validMove){
                                 calculateChanges(rowToIndex(playerRowChoice), colToIndex(playerColumnChoice));
-                                if (this.currentPlayer == 1){
-                                    this.currentPlayer = 2;
-                                    this.playerPiece = "O";
-                                    this.opponentPiece = "X";
-                                } else {
-                                    this.currentPlayer = 1;
-                                    this.playerPiece = "X";
-                                    this.opponentPiece = "O";
-                                }
-
+                                changePlayer();
                             } else {
                                 System.out.println("Your move is not valid, please try again.");
                             }
                         }
-
                     } else {
                         System.out.println((players[currentPlayer - 1].getName()) + ", you have no valid moves.");
+                        changePlayer();
+                        validMoves = calculateValidMoves();
+                        if (validMoves.length == 0){
+                            finished = true;
+                        }
                     }
                 } else {
                     finished = true;
@@ -91,6 +86,18 @@ class Game {
         System.out.println(winner.getName() + ", you are the winner!");
     }
 
+    private void changePlayer(){
+        if (this.currentPlayer == 1){
+            this.currentPlayer = 2;
+            this.playerPiece = "O";
+            this.opponentPiece = "X";
+        } else {
+            this.currentPlayer = 1;
+            this.playerPiece = "X";
+            this.opponentPiece = "O";
+        }
+    }
+
     private void displayBoard(){
         System.out.println(" | A B C D E F G H");
         int currentRow = 1;
@@ -101,25 +108,38 @@ class Game {
         }
     }
 
-
-
-    private boolean validateMove(String[] move){
+    private boolean validateMove(String[] move, String[] validMoves){
         boolean valid = false;
         int colIndex = colToIndex(move[0]);
         int rowIndex = rowToIndex(move[1]);
         if(colIndex >= 0 && colIndex <= 7 && rowIndex >=0 && rowIndex <= 7){
-            valid = true;
+            String moveString = String.join(" ", move);
+            for(String validMove : validMoves){
+                if (moveString.equals(validMove)){
+                    valid = true;
+                    break;
+                }
+            }
+
         }
         return valid;
     }
 
     private int rowToIndex(String row){
-        return Integer.parseInt(row) - 1;
+        try {
+            return Integer.parseInt(row) - 1;
+        } catch (NumberFormatException e){
+            return 9;
+        }
+
     }
 
     private int colToIndex(String col){
-        int colIndex = 0;
+        int colIndex = 9;
         switch (col){
+            case ("A"):
+                colIndex = 0;
+                break;
             case ("B"):
                 colIndex = 1;
                 break;
@@ -196,7 +216,7 @@ class Game {
 
 
         boolean checked = false;
-        while (!checked){
+        while (!checked) {
             try{
                 if (this.board[rowIndex - 1][colIndex].equals(opponentPiece)){
                     valid = true;
@@ -390,18 +410,21 @@ class Game {
     private boolean checkHandler(int rowIndex, int colIndex){
         boolean valid = false;
 
-        boolean validN = checkN(rowIndex, colIndex);
-        boolean validNE = checkNE(rowIndex, colIndex);
-        boolean validE = checkE(rowIndex, colIndex);
-        boolean validSE = checkSE(rowIndex, colIndex);
-        boolean validS = checkS(rowIndex, colIndex);
-        boolean validSW = checkSW(rowIndex, colIndex);
-        boolean validW = checkW(rowIndex, colIndex);
-        boolean validNW = checkNW(rowIndex, colIndex);
+        if (this.board[rowIndex][colIndex].equals("-")){
+            boolean validN = checkN(rowIndex, colIndex);
+            boolean validNE = checkNE(rowIndex, colIndex);
+            boolean validE = checkE(rowIndex, colIndex);
+            boolean validSE = checkSE(rowIndex, colIndex);
+            boolean validS = checkS(rowIndex, colIndex);
+            boolean validSW = checkSW(rowIndex, colIndex);
+            boolean validW = checkW(rowIndex, colIndex);
+            boolean validNW = checkNW(rowIndex, colIndex);
 
-        if (validN || validNE || validE || validSE || validS || validSW || validW || validNW){
-            valid = true;
+            if (validN || validNE || validE || validSE || validS || validSW || validW || validNW){
+                valid = true;
+            }
         }
+
         return valid;
     }
 
