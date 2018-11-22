@@ -8,7 +8,7 @@ public class Menu {
     }
 
     private static void displayMenu(){
-        displayReversiLogo();
+        readFile("src/logo.txt", "Reversi");
         System.out.println();
         System.out.println("Menu");
         System.out.println();
@@ -18,9 +18,10 @@ public class Menu {
         System.out.println("0. Exit");
     }
 
-    private static void displayReversiLogo(){
+
+    private static void readFile(String source, String errorMsg){
         try{
-            FileReader fileReader = new FileReader("src/logo.txt");
+            FileReader fileReader = new FileReader(source);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             String nextFileLine = bufferedReader.readLine();
@@ -33,9 +34,8 @@ public class Menu {
 
             bufferedReader.close();
         } catch (IOException e){
-            System.out.println("Reversi");
+            System.out.println(errorMsg);
         }
-
     }
 
     private static void processChoices(){
@@ -58,7 +58,7 @@ public class Menu {
                     game.loadGame();
                     break;
                 case "3": // User chooses option 3
-                    displayRules();
+                    readFile("src/rules.txt", "Error reading rules.");
                     break;
                 case "0": // User chooses to exit
 
@@ -69,9 +69,5 @@ public class Menu {
                     break;
             }
         }
-    }
-
-    private static void displayRules(){
-
     }
 }
