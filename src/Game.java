@@ -18,6 +18,11 @@ class Game implements Serializable{
         {"-", "-", "-", "-", "-", "-", "-", "-"}
     };
 
+    private final int[][] CHECKDIR = {
+        {-1, 0}, {-1, 1}, {0, 1}, {1, 1},
+        {1, 0}, {1, -1}, {0, -1}, {-1, -1}
+    };
+
     private Player[] players;
     private int currentPlayer;
     private String playerPiece;
@@ -230,7 +235,7 @@ class Game implements Serializable{
         List<String> validMovesList = new ArrayList<>();
         for (int rowIndex = 0; rowIndex < 8; rowIndex++){
             for (int colIndex = 0; colIndex < 8; colIndex++){
-                boolean validMove = checkHandler(rowIndex, colIndex);
+                boolean validMove = cellChecker(rowIndex, colIndex);
                 if (validMove){
                     String[] move = {indexToCol(colIndex), indexToRow(rowIndex)};
                     validMovesList.add(String.join(" ", move));
@@ -240,217 +245,41 @@ class Game implements Serializable{
         return validMovesList.toArray(new String[0]);
     }
 
-    private boolean checkN(int rowIndex, int colIndex){
+    private boolean cellChecker(int rowIndex, int colIndex){
         boolean valid = false;
+        boolean[] validDirs = {
+                false, false, false, false, false, false, false, false
+        };
+        int count = 0;
 
-
-        boolean checked = false;
-        while (!checked) {
-            try{
-                if (this.board[rowIndex - 1][colIndex].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex --;
-                } else if (this.board[rowIndex - 1][colIndex].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
+        for (int[] direction : CHECKDIR){
+            boolean checked = false;
+            boolean validDir = false;
+            while (!checked){
+                try{
+                    if (this.board[rowIndex + direction[0]][colIndex + direction[1]].equals(opponentPiece)){
+                        validDir = true;
+                        rowIndex += direction[0];
+                        colIndex += direction[1];
+                    } else if (this.board[rowIndex + direction[0]][colIndex + direction[1]].equals(playerPiece)){
+                        checked = true;
+                    } else {
+                        validDir = false;
+                        checked = true;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){
+                    validDir = false;
                     checked = true;
                 }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
             }
+            validDirs[count] = validDir;
+            count++;
         }
-        return valid;
-    }
 
-    private boolean checkNE(int rowIndex, int colIndex){
-        boolean valid = false;
-
-
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex - 1][colIndex + 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex --;
-                    colIndex ++;
-                } else if (this.board[rowIndex - 1][colIndex + 1].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkE(int rowIndex, int colIndex){
-        boolean valid = false;
-
-
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex][colIndex + 1].equals(opponentPiece)){
-                    valid = true;
-                    colIndex ++;
-                } else if (this.board[rowIndex][colIndex + 1].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkSE(int rowIndex, int colIndex){
-        boolean valid = false;
-
-
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex + 1][colIndex + 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex ++;
-                    colIndex ++;
-                } else if (this.board[rowIndex + 1][colIndex + 1].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkS(int rowIndex, int colIndex){
-        boolean valid = false;
-
-
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex + 1][colIndex].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex ++;
-                } else if (this.board[rowIndex + 1][colIndex].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkSW(int rowIndex, int colIndex){
-        boolean valid = false;
-
-
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex + 1][colIndex - 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex ++;
-                    colIndex --;
-                } else if (this.board[rowIndex + 1][colIndex - 1].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkW(int rowIndex, int colIndex){
-        boolean valid = false;
-
-
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex][colIndex - 1].equals(opponentPiece)){
-                    valid = true;
-                    colIndex --;
-                } else if (this.board[rowIndex][colIndex - 1].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkNW(int rowIndex, int colIndex){
-        boolean valid = false;
-
-
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex - 1][colIndex - 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex --;
-                    colIndex --;
-                } else if (this.board[rowIndex - 1][colIndex - 1].equals(playerPiece)){
-                    checked = true;
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        return valid;
-    }
-
-    private boolean checkHandler(int rowIndex, int colIndex){
-        boolean valid = false;
-
-        if (this.board[rowIndex][colIndex].equals("-")){
-            boolean validN = checkN(rowIndex, colIndex);
-            boolean validNE = checkNE(rowIndex, colIndex);
-            boolean validE = checkE(rowIndex, colIndex);
-            boolean validSE = checkSE(rowIndex, colIndex);
-            boolean validS = checkS(rowIndex, colIndex);
-            boolean validSW = checkSW(rowIndex, colIndex);
-            boolean validW = checkW(rowIndex, colIndex);
-            boolean validNW = checkNW(rowIndex, colIndex);
-
-            if (validN || validNE || validE || validSE || validS || validSW || validW || validNW){
+        for (boolean validDir : validDirs){
+            if (validDir){
                 valid = true;
+                break;
             }
         }
 
@@ -742,10 +571,11 @@ class Game implements Serializable{
             FileOutputStream outputStream = new FileOutputStream(new File(saveName));
             ObjectOutputStream objectOutput = new ObjectOutputStream(outputStream);
 
-            objectOutput.writeObject((Game) this);
+            objectOutput.writeObject(this);
 
             objectOutput.close();
             outputStream.close();
+            System.out.println("Game saved as '" + saveName + "'.\n");
         } catch (IOException e){
             System.out.println("Error.");
         }

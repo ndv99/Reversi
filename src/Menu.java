@@ -47,7 +47,7 @@ public class Menu {
         while (!finished) { // keeps going while the user hasn't chosen to exit
             displayMenu();
             String userChoice = menuScanner.nextLine();
-            switch (userChoice) { // Originally wrote an 'if' but IntelliJ said to use a 'switch' here.
+            switch (userChoice) {
                 case "1": // User chooses option 1
                     System.out.println("Player 1, enter your name:");
                     String p1Name = menuScanner.nextLine();
@@ -88,9 +88,10 @@ public class Menu {
             inputStream.close();
             objectInput.close();
         } catch (IOException e){
-            System.out.println("Error (IOException). Please try again.");
+            System.out.println("Error (IOException). Please try again.\n If you've just saved your game, make sure to restart the program first.");
         } catch (ClassNotFoundException e){
             System.out.println("Error (ClassNotFoundException). Please try again.");
         }
     }
 }
+
