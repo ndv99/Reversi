@@ -71,7 +71,7 @@ class Game implements Serializable{
                                         String playerRowChoice = gameScanner.nextLine();
                                         validMove = validateMove(new String[]{playerColumnChoice, playerRowChoice}, validMoves);
                                         if (validMove){
-                                            calculateChanges(rowToIndex(playerRowChoice), colToIndex(playerColumnChoice));
+                                            changeCells(rowToIndex(playerRowChoice), colToIndex(playerColumnChoice));
                                             changePlayer();
                                         } else {
                                             System.out.println("Your move is not valid, please try again.");
@@ -110,14 +110,13 @@ class Game implements Serializable{
         }
         int p1Score = players[0].getScore();
         int p2Score = players[1].getScore();
-        Player winner;
         if (p1Score > p2Score){
-            winner = players[0];
-        } else {
-            winner = players[1];
+            System.out.println(players[0].getName() + ", you are the winner!");
+        } else if (p1Score < p2Score){
+            System.out.println(players[1].getName() + ", you are the winner!");
+        } else{
+            System.out.println("The game is a draw.");
         }
-        System.out.println();
-        System.out.println(winner.getName() + ", you are the winner!");
     }
 
     private void changePlayer(){
@@ -286,259 +285,37 @@ class Game implements Serializable{
         return valid;
     }
 
-    private void changeN(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex - 1][colIndex].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex --;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex - 1][colIndex].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
+    private void changeCells(int rowIndex, int colIndex){
+        for (int[] direction : CHECKDIR){
+            boolean valid = false;
+            List<int[]> potentialChanges = new ArrayList<>();
+            potentialChanges.add(new int[]{rowIndex, colIndex});
+            boolean checked = false;
+            while (!checked){
+                try{
+                    if (this.board[rowIndex + direction[0]][colIndex + direction[1]].equals(opponentPiece)){
+                        valid = true;
+                        rowIndex += direction[0];
+                        colIndex += direction[1];
+                        potentialChanges.add(new int[]{rowIndex, colIndex});
+                    } else if (this.board[rowIndex + direction[0]][colIndex + direction[1]].equals(playerPiece)){
+                        checked = true;
+                        potentialChanges.add(new int[]{rowIndex, colIndex});
+                    } else {
+                        valid = false;
+                        checked = true;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){
                     valid = false;
                     checked = true;
                 }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
             }
-        }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void changeNE(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex - 1][colIndex + 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex --;
-                    colIndex ++;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex - 1][colIndex + 1].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
-                    valid = false;
-                    checked = true;
+            if (valid){
+                for (int[] change : potentialChanges){
+                    this.board[change[0]][change[1]] = this.playerPiece;
                 }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
             }
         }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void changeE(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex][colIndex + 1].equals(opponentPiece)){
-                    valid = true;
-                    colIndex ++;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex][colIndex + 1].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void changeSE(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex + 1][colIndex + 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex ++;
-                    colIndex ++;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex + 1][colIndex + 1].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void changeS(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex + 1][colIndex].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex ++;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex + 1][colIndex].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void changeSW(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex + 1][colIndex - 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex ++;
-                    colIndex --;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex + 1][colIndex - 1].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void changeW(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex][colIndex - 1].equals(opponentPiece)){
-                    valid = true;
-                    colIndex --;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex][colIndex - 1].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void changeNW(int rowIndex, int colIndex){
-        boolean valid = false;
-        List<int[]> potentialChanges = new ArrayList<>();
-        potentialChanges.add(new int[]{rowIndex, colIndex});
-        boolean checked = false;
-        while (!checked){
-            try{
-                if (this.board[rowIndex - 1][colIndex - 1].equals(opponentPiece)){
-                    valid = true;
-                    rowIndex --;
-                    colIndex --;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else if (this.board[rowIndex - 1][colIndex - 1].equals(playerPiece)){
-                    checked = true;
-                    potentialChanges.add(new int[]{rowIndex, colIndex});
-                } else {
-                    valid = false;
-                    checked = true;
-                }
-            } catch (ArrayIndexOutOfBoundsException e){
-                valid = false;
-                checked = true;
-            }
-        }
-        if (valid){
-            for (int[] change : potentialChanges){
-                this.board[change[0]][change[1]] = this.playerPiece;
-            }
-        }
-    }
-
-    private void calculateChanges(int rowIndex, int colIndex){
-        changeN(rowIndex, colIndex);
-        changeNE(rowIndex, colIndex);
-        changeE(rowIndex, colIndex);
-        changeSE(rowIndex, colIndex);
-        changeS(rowIndex, colIndex);
-        changeSW(rowIndex, colIndex);
-        changeW(rowIndex, colIndex);
-        changeNW(rowIndex, colIndex);
     }
 
     private void scanBoard(){
