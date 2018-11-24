@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Menu {
 
-    Game game;
+    private Game game;
 
     public static void main(String[] args){
         Menu menu = new Menu();
@@ -15,12 +15,12 @@ public class Menu {
         System.out.println();
         System.out.println("Menu");
         System.out.println();
-        System.out.println("1. New game");
-        System.out.println("2. Load game");
-        System.out.println("3. Rules of Reversi");
+        System.out.println("1. New Player vs Player");
+        System.out.println("2. New Player vs AI Game");
+        System.out.println("3. Load game");
+        System.out.println("4. Rules of Reversi");
         System.out.println("0. Exit");
     }
-
 
     private void readFile(String source, String errorMsg){
         try{
@@ -53,13 +53,19 @@ public class Menu {
                     String p1Name = menuScanner.nextLine();
                     System.out.println("Player 2, enter your name:");
                     String p2Name = menuScanner.nextLine();
-                    game = new Game(p1Name, p2Name);
+                    game = new Game(p1Name, p2Name, false);
                     game.playGame();
                     break;
                 case "2": // User chooses option 2
-                    loadGame();
+                    System.out.println("Player 1, enter your name:");
+                    p1Name = menuScanner.nextLine();
+                    game = new Game(p1Name, "CPU", true);
+                    game.playGame();
                     break;
                 case "3": // User chooses option 3
+                    loadGame();
+                    break;
+                case "4": // User chooses option 4
                     readFile("src/rules.txt", "Error reading rules.");
                     break;
                 case "0": // User chooses to exit

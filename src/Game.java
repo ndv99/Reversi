@@ -2,6 +2,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 class Game implements Serializable{
 
@@ -28,69 +29,38 @@ class Game implements Serializable{
     private String playerPiece;
     private String opponentPiece;
     private int emptySpaces;
+    private boolean PlayerVsComputer;
+    private boolean finished;
 
-    Game(String player1, String player2){
+    Game(String player1, String player2, boolean PlayerVsComputer){
         this.currentPlayer = 1;
         this.playerPiece = "X";
         this.opponentPiece = "O";
-        players = new Player[]{new Player(player1), new Player(player2)};
+        this.players = new Player[]{new Player(player1), new Player(player2)};
+        this.PlayerVsComputer = PlayerVsComputer;
+        this.finished = false;
     }
 
     void playGame(){
         Scanner gameScanner = new Scanner(System.in);
-        boolean finished = false;
         while (!finished){
             scanBoard();
             if (this.emptySpaces > 0){
                 int p1Score = players[0].getScore();
                 int p2Score = players[1].getScore();
                 if (p1Score > 0 && p2Score > 0){
-                    System.out.println();
-                    displayBoard();
                     String[] validMoves = calculateValidMoves();
-                    if (validMoves.length > 0){
-                        System.out.println();
-                        System.out.println(players[0].getName() + ": " + players[0].getScore());
-                        System.out.println(players[1].getName() + ": " + players[1].getScore());
-                        System.out.println();
-                        System.out.println((players[currentPlayer - 1].getName()) + ", it is your turn.");
-
-                        boolean validRequest = false;
-                        while (!validRequest){
-                            System.out.println("\nEnter 1 to make your move, 2 to save your game, or 3 to exit.");
-                            String playerRequest = gameScanner.nextLine();
-                            switch (playerRequest){
-                                case("1"):
-                                    validRequest = true;
-                                    boolean validMove = false;
-                                    while (!validMove){
-                                        System.out.println("Valid moves: " + String.join(" ,", validMoves));
-                                        System.out.println("Please enter the column you want: ");
-                                        String playerColumnChoice = gameScanner.nextLine().toUpperCase();
-                                        System.out.println("Please enter the row you want: ");
-                                        String playerRowChoice = gameScanner.nextLine();
-                                        validMove = validateMove(new String[]{playerColumnChoice, playerRowChoice}, validMoves);
-                                        if (validMove){
-                                            changeCells(rowToIndex(playerRowChoice), colToIndex(playerColumnChoice));
-                                            changePlayer();
-                                        } else {
-                                            System.out.println("Your move is not valid, please try again.");
-                                        }
-                                    }
-                                    break;
-                                case("2"):
-                                    validRequest = true;
-                                    saveGame();
-                                    break;
-                                case("3"):
-                                    validRequest = true;
-                                    finished = true;
-                                    break;
-                                default:
-                                    System.out.println("\nYour request is invalid. Please try again");
+                    if (validMoves.length > 0) {
+                        if (currentPlayer == 2){
+                            if (!PlayerVsComputer){
+                                humanPlayerTurn(validMoves, gameScanner);
+                            } else {
+                                CPUturn(validMoves);
                             }
-
+                        } else {
+                            humanPlayerTurn(validMoves, gameScanner);
                         }
+
                     } else {
                         System.out.println((players[currentPlayer - 1].getName()) + ", you have no valid moves.");
                         changePlayer();
@@ -117,6 +87,60 @@ class Game implements Serializable{
         } else{
             System.out.println("The game is a draw.");
         }
+    }
+
+    private void humanPlayerTurn(String[] validMoves, Scanner gameScanner){
+        System.out.println();
+        displayBoard();
+        System.out.println();
+        System.out.println(players[0].getName() + ": " + players[0].getScore());
+        System.out.println(players[1].getName() + ": " + players[1].getScore());
+        System.out.println();
+        System.out.println((players[currentPlayer - 1].getName()) + ", it is your turn.");
+
+        boolean validRequest = false;
+        while (!validRequest){
+            System.out.println("\nEnter 1 to make your move, 2 to save your game, or 3 to exit.");
+            String playerRequest = gameScanner.nextLine();
+            switch (playerRequest){
+                case("1"):
+                    validRequest = true;
+                    boolean validMove = false;
+                    while (!validMove){
+                        System.out.println("Valid moves: " + String.join(" ,", validMoves));
+                        System.out.println("Please enter the column you want: ");
+                        String playerColumnChoice = gameScanner.nextLine().toUpperCase();
+                        System.out.println("Please enter the row you want: ");
+                        String playerRowChoice = gameScanner.nextLine();
+                        validMove = validateMove(new String[]{playerColumnChoice, playerRowChoice}, validMoves);
+                        if (validMove){
+                            changeCells(rowToIndex(playerRowChoice), colToIndex(playerColumnChoice));
+                            changePlayer();
+                        } else {
+                            System.out.println("Your move is not valid, please try again.");
+                        }
+                    }
+                    break;
+                case("2"):
+                    validRequest = true;
+                    saveGame();
+                    break;
+                case("3"):
+                    validRequest = true;
+                    finished = true;
+                    break;
+                default:
+                    System.out.println("\nYour request is invalid. Please try again");
+            }
+
+        }
+    }
+
+    private void CPUturn(String[] validMoves){
+        int moveChoiceIndex = ThreadLocalRandom.current().nextInt(0, validMoves.length);
+        String[] moveChoice = validMoves[moveChoiceIndex].split(" ");
+        changeCells(rowToIndex(moveChoice[1]), colToIndex(moveChoice[0]));
+        changePlayer();
     }
 
     private void changePlayer(){
@@ -234,10 +258,12 @@ class Game implements Serializable{
         List<String> validMovesList = new ArrayList<>();
         for (int rowIndex = 0; rowIndex < 8; rowIndex++){
             for (int colIndex = 0; colIndex < 8; colIndex++){
-                boolean validMove = cellChecker(rowIndex, colIndex);
-                if (validMove){
-                    String[] move = {indexToCol(colIndex), indexToRow(rowIndex)};
-                    validMovesList.add(String.join(" ", move));
+                if (board[rowIndex][colIndex].equals("-")){
+                    boolean validMove = cellChecker(rowIndex, colIndex);
+                    if (validMove){
+                        String[] move = {indexToCol(colIndex), indexToRow(rowIndex)};
+                        validMovesList.add(String.join(" ", move));
+                    }
                 }
             }
         }
@@ -250,8 +276,11 @@ class Game implements Serializable{
                 false, false, false, false, false, false, false, false
         };
         int count = 0;
-
+        int originalRowIndex = rowIndex;
+        int originalColIndex = colIndex;
         for (int[] direction : CHECKDIR){
+            rowIndex = originalRowIndex;
+            colIndex = originalColIndex;
             boolean checked = false;
             boolean validDir = false;
             while (!checked){
@@ -286,7 +315,11 @@ class Game implements Serializable{
     }
 
     private void changeCells(int rowIndex, int colIndex){
+        int originalRowIndex = rowIndex;
+        int originalColIndex = colIndex;
         for (int[] direction : CHECKDIR){
+            rowIndex = originalRowIndex;
+            colIndex = originalColIndex;
             boolean valid = false;
             List<int[]> potentialChanges = new ArrayList<>();
             potentialChanges.add(new int[]{rowIndex, colIndex});
